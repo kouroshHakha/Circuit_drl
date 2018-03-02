@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
     t_max=3
     replay_buffer_size=100
-    batch_size=32
+    batch_size=1
     experience_rate=2
 
     # construct the replay buffer
@@ -154,6 +154,19 @@ for t in itertools.count():
         print ('specs:{}' .format(specs))
         index = replay_buffer.store_effect(index, s_t, action, reward, s_tp, done, specs)
 
+
+    print ('can sample {}'.format(replay_buffer.can_sample(batch_size)))
+
+    if (replay_buffer.can_sample(batch_size)):
+        obs_t_batch, act_batch, rew_batch, obs_tp_batch, done_mask, specs_batch = \
+            replay_buffer.sample(batch_size)
+
+        pprint.pprint ('st:{}' .format(obs_t_batch))
+        pprint.pprint ('a:{}' .format(act_batch))
+        pprint.pprint ('stp:{}' .format(rew_batch))
+        pprint.pprint ('reward:{}' .format(obs_tp_batch))
+        pprint.pprint ('done:{}' .format(done_mask))
+        pprint.pprint ('specs:{}' .format(specs_batch))
 
 
 
