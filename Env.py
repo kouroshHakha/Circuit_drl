@@ -122,14 +122,14 @@ class Env(object):
             # print(self.cur_state_vec)
 
         EnvClass = importlib.import_module(self.module, package=self.class_name)
-        EnvClass.CsAmpEnv(num_process=self.n_process,
+        cs_env = EnvClass.CsAmpEnv(num_process=self.n_process,
                           design_netlist=self.dsn_netlist,
                           target_specs=self.specs)
         pprint.pprint (state_dicts)
-        sim_results = EnvClass.CsAmpEnv.run(state_dicts)
+        sim_results = cs_env.run(state_dicts)
 
         db = []
-        for idx, result in sim_results.enumerate():
+        for idx, result in enumerate(sim_results):
             state_tp_dict = result[0]
             reward = result[1][0]
             terminate = result[1][1]
@@ -160,4 +160,5 @@ if __name__ == '__main__':
     env.reset()
     actions = range(n)
     print (env.cur_state_vec)
-    env.step(actions)
+    exper = env.step(actions)
+    pprint.pprint(exper)

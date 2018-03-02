@@ -180,8 +180,8 @@ def generate_random_state (len):
 
 if __name__ == '__main__':
 
-    num_process = 15
-    num_designs = 10000
+    num_process = 1
+    num_designs = 1
     dsn_netlist = '../netlists/cs_amp.cir'
     target_spec = dict(gain_min=3.5, bw_min=1e9)
 
@@ -208,7 +208,10 @@ if __name__ == '__main__':
             best_reward = reward
             best_state = result[0]
             best_spec = result[1][2]
-    
+    #for i,value in results.enumerate():
+    #    print(value)
+    print (type(results))    
+    print(results)
     print(best_reward)
     print(best_state)
     print(best_spec)
