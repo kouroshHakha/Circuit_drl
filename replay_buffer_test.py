@@ -33,12 +33,12 @@ class ReplayBuffer2(object):
         self.next_idx      = 0
         self.num_in_buffer = 0
 
-        self.obs_t      = None
-        self.action   = None
-        self.reward   = None
-        self.obs_tp    = None
-        self.done     = None
-        self.specs    = None
+        self.obs_t =    [None]*self.size
+        self.action =   [None]*self.size
+        self.reward =   [None]*self.size
+        self.obs_tp =   [None]*self.size
+        self.done =     [None]*self.size
+        self.specs =    [None]*self.size
 
     def can_sample(self, batch_size):
         """Returns true if `batch_size` different transitions can be sampled from the buffer."""
@@ -105,13 +105,6 @@ class ReplayBuffer2(object):
         done: bool
             True if episode was finished after performing that action.
         """
-        if self.obs is None:
-            self.obs_t    = np.empty([self.size], dtype=np.float32)
-            self.action   = np.empty([self.size], dtype=np.int32)
-            self.reward   = np.empty([self.size], dtype=np.float32)
-            self.obs_tp   = np.empty([self.size], dtype=np.float32)
-            self.done     = np.empty([self.size], dtype=np.bool)
-            self.specs    = np.empty([self.size], dtype=dict)
 
         self.obs_t[idx] = s_t
         self.action[idx] = s_tp
@@ -125,6 +118,7 @@ class ReplayBuffer2(object):
             self.num_in_buffer += 1
 
         self.next_idx += 1
+        self.index = self.next_idx % self.size
         return self.next_idx
 
 if __name__ == '__main__':
