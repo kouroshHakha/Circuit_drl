@@ -127,9 +127,9 @@ if __name__ == '__main__':
     env = Env(file)
     n_actions = env.n_actions
 
-    t_max=3
+    t_max=5
     replay_buffer_size=100
-    batch_size=1
+    batch_size=3
     experience_rate=2
 
     # construct the replay buffer
@@ -155,7 +155,7 @@ for t in itertools.count():
         index = replay_buffer.store_effect(index, s_t, action, reward, s_tp, done, specs)
 
 
-    print ('can sample {}'.format(replay_buffer.can_sample(batch_size)))
+    #print ('can sample {}'.format(replay_buffer.can_sample(batch_size)))
 
     if (replay_buffer.can_sample(batch_size)):
         obs_t_batch, act_batch, rew_batch, obs_tp_batch, done_mask, specs_batch = \
@@ -167,6 +167,7 @@ for t in itertools.count():
         pprint.pprint ('reward:{}' .format(obs_tp_batch))
         pprint.pprint ('done:{}' .format(done_mask))
         pprint.pprint ('specs:{}' .format(specs_batch))
+        break
 
 
 
