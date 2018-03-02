@@ -125,11 +125,10 @@ if __name__ == '__main__':
     env = Env(file)
     n_actions = env.n_actions
 
-    t_max=10
+    t_max=3
     replay_buffer_size=100
     batch_size=32
     experience_rate=2
-    frame_history_len=1
 
     # construct the replay buffer
     replay_buffer = ReplayBuffer2(replay_buffer_size)
@@ -140,7 +139,7 @@ for t in itertools.count():
 
     if t > t_max:
         break
-
+    #print (t)
     action = np.random.randint(n_actions)
     results = env.step([action])
     for result in results:
