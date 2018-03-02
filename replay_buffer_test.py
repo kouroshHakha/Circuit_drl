@@ -107,9 +107,9 @@ class ReplayBuffer2(object):
         """
 
         self.obs_t[idx] = s_t
-        self.action[idx] = s_tp
-        self.reward[idx] = act
-        self.obs_tp[idx] = rew
+        self.action[idx] = act
+        self.reward[idx] = rew
+        self.obs_tp[idx] = s_tp
         self.done[idx] = done
         self.specs[idx] = specs
 
