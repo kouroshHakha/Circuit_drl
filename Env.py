@@ -75,7 +75,7 @@ class Env(object):
         return state
 
     def reset(self, seed=None):
-        # type: (int) -> None
+        # type: (int) -> np.ndarray
         """Resets the environment to a random initial state for further experiment.
 
         Parameters
@@ -89,12 +89,21 @@ class Env(object):
         """
         self.cur_state_vec = self.generate_random_state_vec(seed)
         self.prev_score = 0
+        cur_state_dict = self.state_vec_2_dict(self.cur_state_vec)
+        return self.state_dict_2_vec_sorted(cur_state_dict)
         # print(self.cur_state_vec)
 
     def is_valid(self, state_vec):
         lower_bound_check = all(state_vec > self.lower_bound)
         upper_bound_check = all(state_vec < self.upper_bound)
         return lower_bound_check & upper_bound_check
+
+
+    def state_vec_2_dict(self, vec):
+        return dict(zip(self.params, vec))
+
+    def state_dict_2_vec_sorted(self, dict):
+        return [dict[key] for key in sorted(dict.keys())]
 
     def step(self, actions):
         # type: (List[int]) -> List[Tuple[np.ndarray, np.array, int, float, bool]]
@@ -143,6 +152,7 @@ class Env(object):
         db = []
         for idx, result in enumerate(sim_results):
             state_tp_dict = result[0]
+            specs = result[1][2]
 
             score = result[1][0]
             reward = score - self.prev_score
@@ -152,11 +162,12 @@ class Env(object):
 
             action = actions[idx]
 
+
             state_t_dict = state_t_dicts[idx]
 
             state_tp_vec = [state_tp_dict[key] for key in sorted(state_tp_dict.keys())]
             state_t_vec = [state_t_dict[key] for key in sorted(state_t_dict.keys())]
-            db_tuple = (state_t_vec, state_tp_vec, action, reward, terminate)
+            db_tuple = (state_t_vec, state_tp_vec, action, reward, terminate, specs)
             db.append(db_tuple)
 
         return db
