@@ -88,7 +88,13 @@ class Env(object):
             None
         """
         self.cur_state_vec = self.generate_random_state_vec(seed)
+        self.prev_score = 0
         # print(self.cur_state_vec)
+
+    def is_valid(self, state_vec):
+        lower_bound_check = all(state_vec > self.lower_bound)
+        upper_bound_check = all(state_vec < self.upper_bound)
+        return lower_bound_check & upper_bound_check
 
     def step(self, actions):
         # type: (List[int]) -> List[Tuple[np.ndarray, np.array, int, float, bool]]
@@ -116,6 +122,8 @@ class Env(object):
         for action in actions:
             action_vec = self._action_to_vec(action)
             next_state_vec = self.res * action_vec + self.cur_state_vec
+            if not self.is_valid(next_state_vec):
+                next_state_vec = self.cur_state_vec
             next_state_dict = dict(zip(self.params, next_state_vec))
             current_state_dict = dict(zip(self.params, self.cur_state_vec))
             state_tp_dicts.append(next_state_dict)
@@ -128,15 +136,22 @@ class Env(object):
         cs_env = EnvClass.CsAmpEnv(num_process=self.n_process,
                           design_netlist=self.dsn_netlist,
                           target_specs=self.specs)
+
         pprint.pprint (state_tp_dicts)
         sim_results = cs_env.run(state_tp_dicts)
 
         db = []
         for idx, result in enumerate(sim_results):
             state_tp_dict = result[0]
-            reward = result[1][0]
+
+            score = result[1][0]
+            reward = score - self.prev_score
+            self.prev_score = score
+
             terminate = result[1][1]
+
             action = actions[idx]
+
             state_t_dict = state_t_dicts[idx]
 
             state_tp_vec = [state_tp_dict[key] for key in sorted(state_tp_dict.keys())]
@@ -145,12 +160,6 @@ class Env(object):
             db.append(db_tuple)
 
         return db
-
-
-
-
-
-
 
 
 if __name__ == '__main__':

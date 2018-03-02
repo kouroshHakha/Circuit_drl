@@ -77,7 +77,7 @@ class CsAmpEnv(object):
         dsn_name = self.get_design_name(state)
         design_folder, fpath = self.create_design(state)
         self.simulate(fpath)
-        result = self.get_rewards(design_folder)
+        result = self.get_score(design_folder)
         return state, result
 
 
@@ -87,12 +87,13 @@ class CsAmpEnv(object):
         results = pool.map(self.create_design_and_simulate, arg_list)
         return results
 
-    def get_rewards(self, output_path):
+    def get_score(self, output_path):
         """
 
         :param output_path:
         :return
-        reward: a single scalar value representing the reward value
+        score:  a single scalar value representing the value of the current state
+                reward will essentially be the change in score
         terminate: true if we met all the specs
         """
 
@@ -105,10 +106,10 @@ class CsAmpEnv(object):
         gain = self.find_dc_gain(vout)
 
         if (bw > bw_min and gain > gain_min):
-            reward = 1/Ibias
+            score = 1/Ibias
             terminate = True
         else:
-            reward = - (abs(bw - bw_min) / bw_min + abs(gain - gain_min) / gain_min)
+            score = - (abs(bw - bw_min) / bw_min + abs(gain - gain_min) / gain_min)
             
         # print('bw', bw)
         # print('gain', gain)
@@ -119,7 +120,7 @@ class CsAmpEnv(object):
             gain=gain,
             Ibias=Ibias
         )
-        return reward, terminate, spec
+        return score, terminate, spec
 
     def parse_output(self, output_path):
 
@@ -201,17 +202,17 @@ if __name__ == '__main__':
     #pprint.pprint(results)
     print("time for num_process=%d, num_designs=%d : %f" % (num_process, num_designs, end_time - start_time))
     
-    best_reward = -np.float('inf')
+    best_score = -np.float('inf')
     for result in results:
-        reward = result[1][0]
-        if reward > best_reward:
-            best_reward = reward
+        score = result[1][0]
+        if score > best_score:
+            best_score = score
             best_state = result[0]
             best_spec = result[1][2]
     #for i,value in results.enumerate():
     #    print(value)
     print (type(results))    
     print(results)
-    print(best_reward)
+    print(best_score)
     print(best_state)
     print(best_spec)
