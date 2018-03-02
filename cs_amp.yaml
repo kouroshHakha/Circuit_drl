@@ -1,0 +1,22 @@
+# Cs amp yaml file
+
+module_name: "Envs.CsAmpEnv"
+class_name: "CsAmpEnv"
+dsn_netlist: "./netlists/cs_amp.cir"
+number_process: 2
+
+target_specs:
+  bw_min: !!float 1.0e9
+  gain_min: !!float 10
+
+variable_characteristics:
+  vbias:
+    range: !!python/tuple [0,1.8]
+    res:  !!float 5.0e-3
+  rload:
+    range: !!python/tuple [10.0, !!float 10.0e3]
+    res: !!float 10
+  mul:
+    range: !!python/tuple [1, 200]
+    res: 1
+
