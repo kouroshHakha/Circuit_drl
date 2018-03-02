@@ -146,7 +146,7 @@ class Env(object):
                           design_netlist=self.dsn_netlist,
                           target_specs=self.specs)
 
-        pprint.pprint (state_tp_dicts)
+        # pprint.pprint (state_tp_dicts)
         sim_results = cs_env.run(state_tp_dicts)
 
         db = []

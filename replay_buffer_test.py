@@ -105,6 +105,14 @@ class ReplayBuffer2(object):
         done: bool
             True if episode was finished after performing that action.
         """
+        if self.obs is None:
+            self.obs_t    = np.empty([self.size], dtype=np.float32)
+            self.action   = np.empty([self.size], dtype=np.int32)
+            self.reward   = np.empty([self.size], dtype=np.float32)
+            self.obs_tp   = np.empty([self.size], dtype=np.float32)
+            self.done     = np.empty([self.size], dtype=np.bool)
+            self.specs    = np.empty([self.size], dtype=dict)
+
         self.obs_t[idx] = s_t
         self.action[idx] = s_tp
         self.reward[idx] = act
@@ -150,7 +158,7 @@ for t in itertools.count():
         print ('reward:{}' .format(reward))
         print ('done:{}' .format(done))
         print ('specs:{}' .format(specs))
-        # index = replay_buffer.store_effect(index, s_t, action, reward, s_tp, done, specs)
+        index = replay_buffer.store_effect(index, s_t, action, reward, s_tp, done, specs)
 
 
 
