@@ -78,12 +78,12 @@ class ReplayBuffer2(object):
         assert self.can_sample(batch_size)
         idxes = sample_n_unique(lambda: random.randint(0, self.num_in_buffer - 2), batch_size)
 
-        obs_t_batch = self.obs_t[idxes]
-        act_batch = self.action[idxes]
-        rew_batch = self.reward[idxes]
-        obs_tp_batch = self.obs_tp[idxes]
+        obs_t_batch = np.array([self.obs_t[idx] for idx in idxes], dtype=np.float32)
+        act_batch = np.array([self.action[idx] for idx in idxes], dtype=np.int32)
+        rew_batch = np.array([self.reward[idx] for idx in idxes], dtype=np.float32)
+        obs_tp_batch = np.array([self.obs_tp[idx] for idx in idxes], dtype=np.float32)
         done_mask = np.array([1.0 if self.done[idx] else 0.0 for idx in idxes], dtype=np.float32)
-        specs_batch = self.specs[idxes]
+        specs_batch = [self.specs[idx] for idx in idxes]
 
         return obs_t_batch, act_batch, rew_batch, obs_tp_batch, done_mask, specs_batch
 
