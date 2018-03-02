@@ -111,12 +111,15 @@ class Env(object):
             reward of the state, action pair
 
         """
-        state_dicts = []
+        state_tp_dicts = []
+        state_t_dicts = []
         for action in actions:
             action_vec = self._action_to_vec(action)
             next_state_vec = self.res * action_vec + self.cur_state_vec
             next_state_dict = dict(zip(self.params, next_state_vec))
-            state_dicts.append(next_state_dict)
+            current_state_dict = dict(zip(self.params, self.cur_state_vec))
+            state_tp_dicts.append(next_state_dict)
+            state_t_dicts.append(current_state_dict)
             self.cur_state_vec = next_state_vec
             # print(action_vec)
             # print(self.cur_state_vec)
@@ -125,8 +128,8 @@ class Env(object):
         cs_env = EnvClass.CsAmpEnv(num_process=self.n_process,
                           design_netlist=self.dsn_netlist,
                           target_specs=self.specs)
-        pprint.pprint (state_dicts)
-        sim_results = cs_env.run(state_dicts)
+        pprint.pprint (state_tp_dicts)
+        sim_results = cs_env.run(state_tp_dicts)
 
         db = []
         for idx, result in enumerate(sim_results):
@@ -134,7 +137,7 @@ class Env(object):
             reward = result[1][0]
             terminate = result[1][1]
             action = actions[idx]
-            state_t_dict = state_dicts[idx]
+            state_t_dict = state_t_dicts[idx]
 
             state_tp_vec = [state_tp_dict[key] for key in sorted(state_tp_dict.keys())]
             state_t_vec = [state_t_dict[key] for key in sorted(state_t_dict.keys())]
