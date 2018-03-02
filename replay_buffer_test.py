@@ -163,8 +163,8 @@ for t in itertools.count():
 
         pprint.pprint ('st:{}' .format(obs_t_batch))
         pprint.pprint ('a:{}' .format(act_batch))
-        pprint.pprint ('stp:{}' .format(rew_batch))
-        pprint.pprint ('reward:{}' .format(obs_tp_batch))
+        pprint.pprint ('reward:{}' .format(rew_batch))
+        pprint.pprint ('stp:{}' .format(obs_tp_batch))
         pprint.pprint ('done:{}' .format(done_mask))
         pprint.pprint ('specs:{}' .format(specs_batch))
         break
