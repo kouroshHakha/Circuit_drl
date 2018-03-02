@@ -25,10 +25,10 @@ if __name__ == '__main__':
     env = Env(file)
     n_actions = env.n_actions
 
-    t_max=1
-    replay_buffer_size=8
-    batch_size=3
-    experience_rate=3
+    t_max=10
+    replay_buffer_size=100
+    batch_size=5
+    experience_rate=2
 
     # construct the replay buffer
     replay_buffer = ReplayBuffer(replay_buffer_size)

@@ -3,7 +3,7 @@
 module_name: "Envs.CsAmpEnv"
 class_name: "CsAmpEnv"
 dsn_netlist: "./netlists/cs_amp.cir"
-number_process: 2
+number_process: 10
 
 target_specs:
   bw_min: !!float 1.0e9
