@@ -118,7 +118,7 @@ class ReplayBuffer2(object):
             self.num_in_buffer += 1
 
         self.next_idx += 1
-        self.index = self.next_idx % self.size
+        self.next_idx = self.next_idx % self.size
         return self.next_idx
 
 if __name__ == '__main__':
@@ -127,8 +127,8 @@ if __name__ == '__main__':
     env = Env(file)
     n_actions = env.n_actions
 
-    t_max=5
-    replay_buffer_size=100
+    t_max=10
+    replay_buffer_size=8
     batch_size=3
     experience_rate=2
 
@@ -153,6 +153,7 @@ for t in itertools.count():
         print ('done:{}' .format(done))
         print ('specs:{}' .format(specs))
         index = replay_buffer.store_effect(index, s_t, action, reward, s_tp, done, specs)
+        print (index)
 
 
     #print ('can sample {}'.format(replay_buffer.can_sample(batch_size)))
@@ -167,7 +168,6 @@ for t in itertools.count():
         pprint.pprint ('stp:{}' .format(obs_tp_batch))
         pprint.pprint ('done:{}' .format(done_mask))
         pprint.pprint ('specs:{}' .format(specs_batch))
-        break
 
 
 
