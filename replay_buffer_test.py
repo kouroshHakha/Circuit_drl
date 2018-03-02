@@ -1,4 +1,4 @@
-from dqn_utils import *
+from dqn_utils import sample_n_unique
 import numpy as np
 import random
 import re
@@ -143,11 +143,16 @@ for t in itertools.count():
 
     action = np.random.randint(n_actions)
     results = env.step([action])
-    pprint.pprint(results)
-    # for result in results:
-    #     s_t, s_tp, action, reward, done, specs = result
-    #     index = replay_buffer.store_effect(index, s_t, action, reward, s_tp, done, specs)
-    #
+    for result in results:
+        s_t, s_tp, action, reward, done, specs = result
+        print ('st:{}' .format(s_t))
+        print ('a:{}' .format(action))
+        print ('stp:{}' .format(s_tp))
+        print ('reward:{}' .format(reward))
+        print ('done:{}' .format(done))
+        print ('specs:{}' .format(specs))
+        # index = replay_buffer.store_effect(index, s_t, action, reward, s_tp, done, specs)
+
 
 
 
