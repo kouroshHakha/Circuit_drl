@@ -93,9 +93,13 @@ class Env(object):
         return self.state_dict_2_vec_sorted(cur_state_dict)
         # print(self.cur_state_vec)
 
-    def is_valid(self, state_vec):
-        lower_bound_check = all(state_vec > self.lower_bound)
-        upper_bound_check = all(state_vec < self.upper_bound)
+    def is_valid(self, state_vec, sorted=False):
+        if sorted:
+            lower_bound_check = all(state_vec > self.sort_vec(self.lower_bound))
+            upper_bound_check = all(state_vec < self.sort_vec(self.upper_bound))
+        else:
+            lower_bound_check = all(state_vec > self.lower_bound)
+            upper_bound_check = all(state_vec < self.upper_bound)
         return lower_bound_check & upper_bound_check
 
 
@@ -104,6 +108,20 @@ class Env(object):
 
     def state_dict_2_vec_sorted(self, dict):
         return [dict[key] for key in sorted(dict.keys())]
+
+    def sort_vec(self, vec):
+        dict = self.state_vec_2_dict(vec)
+        sorted = self.state_dict_2_vec_sorted(dict)
+        return sorted
+
+    def get_transition(self, cur_state_vec, action_abs):
+        action_vec = self._action_to_vec(action_abs)
+        action_sorted = self.sort_vec(action_vec)
+        res_sorted = self.sort_vec(self.res)
+        next_state_vec = np.array(res_sorted) * np.array(action_sorted) + np.array(cur_state_vec)
+        if not self.is_valid(next_state_vec, sorted=True):
+            next_state_vec = cur_state_vec
+        return next_state_vec
 
     def step(self, actions):
         # type: (List[int]) -> List[Tuple[np.ndarray, np.array, int, float, bool]]
