@@ -69,9 +69,11 @@ class CsAmpEnv(object):
 
     def simulate(self, fpath):
         command = "ngspice -b %s >/dev/null 2>&1" %fpath
+        # command = "ngspice -b %s" %fpath
         #print("command",command)
         #os.system("cat %s" %fpath)
-        os.system(command)
+        if os.system(command):
+            raise RuntimeError('program {} failed!'.format(command))
 
     def create_design_and_simulate(self, state):
         dsn_name = self.get_design_name(state)
