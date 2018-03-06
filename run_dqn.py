@@ -8,7 +8,7 @@ import tensorflow.contrib.layers as layers
 import dqn
 from dqn_utils import *
 
-from Envs.CsAmpEnv import CsAmpEnv
+from Env import Env
 
 def model(input_vec, num_actions, scope, reuse=False):
     with tf.variable_scope(scope, reuse=reuse):
@@ -25,7 +25,7 @@ def model_learn(env,
                 session,
                 num_timesteps):
     # This is just a rough estimate
-    num_iterations = float(num_timesteps) / 4.0
+    num_iterations = float(num_timesteps) / 1.0
 
     lr_multiplier = 1.0
     lr_schedule = PiecewiseSchedule([
@@ -40,7 +40,7 @@ def model_learn(env,
         lr_schedule=lr_schedule
     )
 
-    def stopping_criterion(env, t):
+    def stopping_criterion(t):
         return t >= num_timesteps
 
     exploration_schedule = PiecewiseSchedule(
@@ -61,12 +61,13 @@ def model_learn(env,
         replay_buffer_size=50000,
         batch_size=32,
         gamma=0.99,
-        learning_starts=100,
+        learning_starts=20,
         learning_freq=4,
-        target_update_freq=500,
-        grad_norm_clipping=10
+        target_update_freq=10,
+        grad_norm_clipping=10,
+        parallelization_rate=10
     )
-    env.close()
+
 
 def get_available_gpus():
     from tensorflow.python.client import device_lib
@@ -92,19 +93,11 @@ def get_session():
     print("AVAILABLE GPUS: ", get_available_gpus())
     return session
 
-def get_env(netlist, target_specs):
-
-    env = CsAmpEnv(num_process=1 , design_netlist=netlist, target_specs=target_specs)
-    return env
-
 def main():
-    max_timesteps = 10000
+    max_timesteps = 50
     # Run training
-    dsn_netlist = './netlists/cs_amp.cir'
-    target_spec = dict(gain_min=3.5, bw_min=1e9)
-    env = CsAmpEnv(num_process=1 ,
-                   design_netlist=dsn_netlist,
-                   target_specs=target_spec)
+    file = './cs_amp.yaml'
+    env = Env(file)
 
     session = get_session()
     model_learn(env, session, num_timesteps=max_timesteps)

@@ -11,6 +11,7 @@ import time
 import pprint
 import yaml
 import importlib
+from collections import deque
 
 
 
@@ -28,6 +29,18 @@ class Env(object):
             self.module = block_specs['module_name']
             self.class_name = block_specs['class_name']
             self.n_process = block_specs['number_process']
+
+            # These values are the last 10 simulation averages for different parameters
+            # They will help in debugging the algorithm and whether the algorithm is doing something
+            # meaningful
+
+            avg_depth = 10
+            self.states_mem = deque([], avg_depth)
+            self.specs_mem = dict()
+            for key in self.params:
+                self.specs_mem[key] = deque([], avg_depth)
+            self.rew_mem = deque([], avg_depth)
+            self.score_mem = deque([], avg_depth)
 
 
     def _compute_action_space(self, var_chars):
@@ -187,6 +200,13 @@ class Env(object):
             state_t_vec = [state_t_dict[key] for key in sorted(state_t_dict.keys())]
             db_tuple = (state_t_vec, state_tp_vec, action, reward, terminate, specs)
             db.append(db_tuple)
+
+            # store vectors for later access:
+            self.states_mem.append(state_tp_vec)
+            for param in self.params:
+                self.specs_mem[param].append(specs[param])
+            self.rew_mem.append(reward)
+            self.score_mem.append(score)
 
         return db
 
