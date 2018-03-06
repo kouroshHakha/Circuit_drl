@@ -68,7 +68,7 @@ class CsAmpEnv(object):
         return design_folder, fpath
 
     def simulate(self, fpath):
-        command = "ngspice -b %s" %fpath
+        command = "ngspice -b %s >/dev/null 2>&1" %fpath
         #print("command",command)
         #os.system("cat %s" %fpath)
         os.system(command)
