@@ -343,8 +343,7 @@ def learn(env,
         gain_list.append(avg_gain)
         bw_list.append(avg_bw)
         ibias_list.append(avg_Ibias)
-        print(t%LOG_EVERY_N_STEPS)
-        print(t)
+        print (t)
         if t % LOG_EVERY_N_STEPS == 0 and model_initialized:
             print("Timestep %d" % (t,))
             print("last state tried {}" .format(env.states_mem[-1]))
