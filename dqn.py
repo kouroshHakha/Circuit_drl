@@ -332,7 +332,6 @@ def learn(env,
 
             ### 4. Log progress and store data for plotting
             x_list.append(t)
-            error_list.append(error)
             avg_reward = np.mean(np.array(env.rew_mem))
             avg_score = np.mean(np.array(env.score_mem))
             avg_gain = np.mean(np.array(env.specs_mem['gain']))

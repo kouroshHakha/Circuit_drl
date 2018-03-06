@@ -37,8 +37,9 @@ class Env(object):
             avg_depth = 10
             self.states_mem = deque([], avg_depth)
             self.specs_mem = dict()
-            for key in self.params:
-                self.specs_mem[key] = deque([], avg_depth)
+            self.specs_mem['bw'] = deque([], avg_depth)
+            self.specs_mem['Ibias'] = deque([], avg_depth)
+            self.specs_mem['gain'] = deque([], avg_depth)
             self.rew_mem = deque([], avg_depth)
             self.score_mem = deque([], avg_depth)
 
@@ -200,7 +201,6 @@ class Env(object):
             state_t_vec = [state_t_dict[key] for key in sorted(state_t_dict.keys())]
             db_tuple = (state_t_vec, state_tp_vec, action, reward, terminate, specs)
             db.append(db_tuple)
-
             # store vectors for later access:
             self.states_mem.append(state_tp_vec)
             for param in specs.keys():
