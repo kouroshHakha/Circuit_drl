@@ -203,7 +203,7 @@ class Env(object):
 
             # store vectors for later access:
             self.states_mem.append(state_tp_vec)
-            for param in self.params:
+            for param in specs.keys():
                 self.specs_mem[param].append(specs[param])
             self.rew_mem.append(reward)
             self.score_mem.append(score)
