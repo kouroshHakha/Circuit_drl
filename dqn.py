@@ -240,7 +240,7 @@ def learn(env,
         last_obs = env.get_transition(last_obs, action)
         actions.append(action)
 
-        if len(actions) == parallelization_rate:
+        if (t % parallelization_rate == 0 and not model_initialized) or (t % learning_freq and model_initialized):
 
             results = env.step(actions)
             actions.clear()
@@ -259,104 +259,104 @@ def learn(env,
             # (and reset if done was true), and last_obs should point to the new latest
             # observation
 
-            ### 3. Perform experience replay and train the network.
-            # note that this is only done if the replay buffer contains enough samples
-            # for us to learn something useful -- until then, the model will not be
-            # initialized and random actions should be taken
-            if (t > learning_starts and
-                    t % learning_freq == 0 and
-                    replay_buffer.can_sample(batch_size)):
-                # Here, you should perform training. Training consists of four steps:
-                # 3.a: use the replay buffer to sample a batch of transitions (see the
-                # replay buffer code for function definition, each batch that you sample
-                # should consist of current observations, current actions, rewards,
-                # next observations, and done indicator).
+        ### 3. Perform experience replay and train the network.
+        # note that this is only done if the replay buffer contains enough samples
+        # for us to learn something useful -- until then, the model will not be
+        # initialized and random actions should be taken
+        if (t > learning_starts and
+                t % learning_freq == 0 and
+                replay_buffer.can_sample(batch_size)):
+            # Here, you should perform training. Training consists of four steps:
+            # 3.a: use the replay buffer to sample a batch of transitions (see the
+            # replay buffer code for function definition, each batch that you sample
+            # should consist of current observations, current actions, rewards,
+            # next observations, and done indicator).
 
-                obs_t_batch, act_batch, rew_batch, obs_tp_batch, done_batch, specs_batch = \
-                    replay_buffer.sample(batch_size)
+            obs_t_batch, act_batch, rew_batch, obs_tp_batch, done_batch, specs_batch = \
+                replay_buffer.sample(batch_size)
 
-                # 3.b: initialize the model if it has not been initialized yet; to do
-                # that, call
-                #    initialize_interdependent_variables(session, tf.global_variables(), {
-                #        obs_t_ph: obs_t_batch,
-                #        obs_tp1_ph: obs_tp1_batch,
-                #    })
-                # where obs_t_batch and obs_tp1_batch are the batches of observations at
-                # the current and next time step. The boolean variable model_initialized
-                # indicates whether or not the model has been initialized.
-                # Remember that you have to update the target network too (see 3.d)!
-                if not model_initialized:
-                    print ("Initializing Network ...")
-                    initialize_interdependent_variables(session, tf.global_variables(),
-                                                        {obs_t_ph: obs_t_batch,
-                                                        obs_tp1_ph: obs_tp_batch})
-                    model_initialized = True
+            # 3.b: initialize the model if it has not been initialized yet; to do
+            # that, call
+            #    initialize_interdependent_variables(session, tf.global_variables(), {
+            #        obs_t_ph: obs_t_batch,
+            #        obs_tp1_ph: obs_tp1_batch,
+            #    })
+            # where obs_t_batch and obs_tp1_batch are the batches of observations at
+            # the current and next time step. The boolean variable model_initialized
+            # indicates whether or not the model has been initialized.
+            # Remember that you have to update the target network too (see 3.d)!
+            if not model_initialized:
+                print ("Initializing Network ...")
+                initialize_interdependent_variables(session, tf.global_variables(),
+                                                    {obs_t_ph: obs_t_batch,
+                                                    obs_tp1_ph: obs_tp_batch})
+                model_initialized = True
 
-                # 3.c: train the model. To do this, you'll need to use the train_fn and
-                # total_error ops that were created earlier: total_error is what you
-                # created to compute the total Bellman error in a batch, and train_fn
-                # will actually perform a gradient step and update the network parameters
-                # to reduce total_error. When calling session.run on these you'll need to
-                # populate the following placeholders:
-                # obs_t_ph
-                # act_t_ph
-                # rew_t_ph
-                # obs_tp1_ph
-                # done_mask_ph
-                # (this is needed for computing total_error)
-                # learning_rate -- you can get this from optimizer_spec.lr_schedule.value(t)
-                # (this is needed by the optimizer to choose the learning rate)
+            # 3.c: train the model. To do this, you'll need to use the train_fn and
+            # total_error ops that were created earlier: total_error is what you
+            # created to compute the total Bellman error in a batch, and train_fn
+            # will actually perform a gradient step and update the network parameters
+            # to reduce total_error. When calling session.run on these you'll need to
+            # populate the following placeholders:
+            # obs_t_ph
+            # act_t_ph
+            # rew_t_ph
+            # obs_tp1_ph
+            # done_mask_ph
+            # (this is needed for computing total_error)
+            # learning_rate -- you can get this from optimizer_spec.lr_schedule.value(t)
+            # (this is needed by the optimizer to choose the learning rate)
 
-                optimizer_lr = optimizer_spec.lr_schedule.value(t)
+            optimizer_lr = optimizer_spec.lr_schedule.value(t)
 
-                feed_dict = {obs_t_ph: obs_t_batch,
-                             act_t_ph: act_batch,
-                             rew_t_ph: rew_batch,
-                             obs_tp1_ph: obs_tp_batch,
-                             done_mask_ph: done_batch,
-                             learning_rate: optimizer_lr}
-                error, _ = session.run([total_error, train_fn], feed_dict)
+            feed_dict = {obs_t_ph: obs_t_batch,
+                         act_t_ph: act_batch,
+                         rew_t_ph: rew_batch,
+                         obs_tp1_ph: obs_tp_batch,
+                         done_mask_ph: done_batch,
+                         learning_rate: optimizer_lr}
+            error, _ = session.run([total_error, train_fn], feed_dict)
 
-                # 3.d: periodically update the target network by calling
-                # session.run(update_target_fn)
-                # you should update every target_update_freq steps, and you may find the
-                # variable num_param_updates useful for this (it was initialized to 0)
-                if (t % target_update_freq == 0):
-                    print ("update of target network in progress ...")
-                    session.run(update_target_fn)
-                    num_param_updates += 1
+            # 3.d: periodically update the target network by calling
+            # session.run(update_target_fn)
+            # you should update every target_update_freq steps, and you may find the
+            # variable num_param_updates useful for this (it was initialized to 0)
+            if (t % target_update_freq == 0):
+                print ("update of target network in progress ...")
+                session.run(update_target_fn)
+                num_param_updates += 1
 
-                # YOUR CODE HERE
+            # YOUR CODE HERE
 
-                #####
+            #####
 
-            ### 4. Log progress and store data for plotting
-            x_list.append(t)
-            avg_reward = np.mean(np.array(env.rew_mem))
-            avg_score = np.mean(np.array(env.score_mem))
-            avg_gain = np.mean(np.array(env.specs_mem['gain']))
-            avg_bw = np.mean(np.array(env.specs_mem['bw']))
-            avg_Ibias = np.mean(np.array(env.specs_mem['Ibias']))
+        ### 4. Log progress and store data for plotting
+        x_list.append(t)
+        avg_reward = np.mean(np.array(env.rew_mem))
+        avg_score = np.mean(np.array(env.score_mem))
+        avg_gain = np.mean(np.array(env.specs_mem['gain']))
+        avg_bw = np.mean(np.array(env.specs_mem['bw']))
+        avg_Ibias = np.mean(np.array(env.specs_mem['Ibias']))
 
-            reward_list.append(avg_reward)
-            score_list.append(avg_score)
-            gain_list.append(avg_gain)
-            bw_list.append(avg_bw)
-            ibias_list.append(avg_Ibias)
-            print(t%LOG_EVERY_N_STEPS)
-            print(t)
-            if t % LOG_EVERY_N_STEPS == 0 and model_initialized:
-                print("Timestep %d" % (t,))
-                print("last state tried {}" .format(env.states_mem[-1]))
-                print("avg_reward %f" % avg_reward)
-                print("avg_score %f" % avg_score)
-                print("avg_gain %f" % avg_gain)
-                print("avg_bw %f" % avg_bw)
-                print("exploration %f" % exploration.value(t))
-                print("learning_rate %f" % optimizer_spec.lr_schedule.value(t))
-                print("error of Q_func estimator %f" % error)
+        reward_list.append(avg_reward)
+        score_list.append(avg_score)
+        gain_list.append(avg_gain)
+        bw_list.append(avg_bw)
+        ibias_list.append(avg_Ibias)
+        print(t%LOG_EVERY_N_STEPS)
+        print(t)
+        if t % LOG_EVERY_N_STEPS == 0 and model_initialized:
+            print("Timestep %d" % (t,))
+            print("last state tried {}" .format(env.states_mem[-1]))
+            print("avg_reward %f" % avg_reward)
+            print("avg_score %f" % avg_score)
+            print("avg_gain %f" % avg_gain)
+            print("avg_bw %f" % avg_bw)
+            print("exploration %f" % exploration.value(t))
+            print("learning_rate %f" % optimizer_spec.lr_schedule.value(t))
+            print("error of Q_func estimator %f" % error)
 
-                sys.stdout.flush()
+            sys.stdout.flush()
 
         t += 1
 
