@@ -61,9 +61,9 @@ def model_learn(env,
         replay_buffer_size=100000,
         batch_size=32,
         gamma=0.99,
-        learning_starts=5000,
+        learning_starts=500,
         learning_freq=4,
-        target_update_freq=1000,
+        target_update_freq=100,
         grad_norm_clipping=10,
         parallelization_rate=10
     )
@@ -94,7 +94,7 @@ def get_session():
     return session
 
 def main():
-    max_timesteps = 500000
+    max_timesteps = 100000
     # Run training
     file = './cs_amp.yaml'
     env = Env(file)

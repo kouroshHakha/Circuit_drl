@@ -180,7 +180,7 @@ def learn(env,
     mean_episode_reward      = -float('nan')
     best_mean_episode_reward = -float('inf')
     last_obs = env.reset()
-    LOG_EVERY_N_STEPS = 10
+    LOG_EVERY_N_STEPS = 100
     actions = []
 
     # values for plotting
@@ -343,7 +343,7 @@ def learn(env,
         gain_list.append(avg_gain)
         bw_list.append(avg_bw)
         ibias_list.append(avg_Ibias)
-        print (t)
+        #print (t)
         if t % LOG_EVERY_N_STEPS == 0 and model_initialized:
             print("Timestep %d" % (t,))
             print("last state tried {}" .format(env.states_mem[-1]))
