@@ -88,6 +88,7 @@ class CsAmpEnv(object):
         pool = ThreadPool(processes=self.num_process)
         arg_list = [(state) for state in states]
         results = pool.map(self.create_design_and_simulate, arg_list)
+        pool.close()
         return results
 
     def get_score(self, output_path):
@@ -107,7 +108,6 @@ class CsAmpEnv(object):
         freq, vout, Ibias = self.parse_output(output_path)
         bw = self.find_bw(vout, freq)
         gain = self.find_dc_gain(vout)
-
         if (bw > bw_min and gain > gain_min):
             score = 1/Ibias
             terminate = True
@@ -186,17 +186,14 @@ if __name__ == '__main__':
 
     num_process = 1
     num_designs = 1
-    dsn_netlist = '../netlists/cs_amp.cir'
-    target_spec = dict(gain_min=3.5, bw_min=1e9)
+    dsn_netlist = './netlists/cs_amp.cir'
+    target_spec = dict(gain_min=10, bw_min=0.9e9)
 
     cs_env = CsAmpEnv(num_process=num_process,
                       design_netlist=dsn_netlist,
                       target_specs=target_spec)
-    states = generate_random_state(num_designs)
-    #states = [{'vbias': 0.7,
-    #           'mul': 12,
-    #           'rload': 400,
-    #           'cload': 50e-13}]
+    # states = generate_random_state(num_designs)
+    states = [{'mul': 11}]
 
     start_time = time.time()
     results = cs_env.run(states)

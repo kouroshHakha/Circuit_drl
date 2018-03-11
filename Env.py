@@ -34,7 +34,7 @@ class Env(object):
             # They will help in debugging the algorithm and whether the algorithm is doing something
             # meaningful
 
-            avg_depth = 10
+            avg_depth = 1
             self.states_mem = deque([], avg_depth)
             self.specs_mem = dict()
             self.specs_mem['bw'] = deque([], avg_depth)

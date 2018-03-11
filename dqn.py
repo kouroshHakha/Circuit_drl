@@ -187,7 +187,7 @@ def learn(env,
     x_list = []
     error_list = []
     gain_list, bw_list, score_list, reward_list, ibias_list = [], [], [], [], []
-
+    last_state_list = []
 
     t = 0
     for k in itertools.count():
@@ -234,14 +234,13 @@ def learn(env,
             action = np.random.randint(num_actions)
         else:
             # do something with probability of 1 - epsilon (e.g. exploit)
-            # print ("following policy ... ")
+            # print ("following policy @ t = %d" %(t))
             action = session.run(best_actions_target_nn, feed_dict={obs_tp1_ph: [last_obs]})
 
         last_obs = env.get_transition(last_obs, action)
         actions.append(action)
 
         if (t % parallelization_rate == 0 and not model_initialized) or (t % learning_freq and model_initialized):
-
             results = env.step(actions)
             actions.clear()
             for res_idx, result in enumerate(results):
@@ -249,6 +248,7 @@ def learn(env,
                 if (done):
                     t = t - (len(actions) - res_idx + 1)
                     last_obs = env.reset()
+                    print ("reset happened @ t=%d" %t)
                     break
                 # save reward, and done in the buffer
                 index = replay_buffer.store_effect(index, s_t, action, reward, s_tp, done, specs)
@@ -343,6 +343,7 @@ def learn(env,
         gain_list.append(avg_gain)
         bw_list.append(avg_bw)
         ibias_list.append(avg_Ibias)
+        last_state_list.append(env.states_mem[-1])
         #print (t)
         if t % LOG_EVERY_N_STEPS == 0 and model_initialized:
             print("Timestep %d" % (t,))
@@ -365,7 +366,7 @@ def learn(env,
 
     data = dict(
         t = x_list,
-        last_state = env.states_mem[-1],
+        last_state = last_state_list,
         reward = reward_list,
         score = score_list,
         gain = gain_list,
@@ -375,13 +376,24 @@ def learn(env,
     with open(file_dir, 'wb') as handle:
         pickle.dump(data, handle)
 
-
-    plt.subplot(211)
+    plt.subplot(511)
     plt.plot(x_list, reward_list, lw=2)
     plt.xlabel("time steps")
-    plt.ylabel("mean reward")
-
-    plt.subplot(212)
+    plt.ylabel("reward")
+    plt.subplot(512)
     plt.plot(x_list, score_list, lw=2)
     plt.xlabel("time steps")
     plt.ylabel("score")
+    plt.subplot(513)
+    plt.plot(x_list, gain_list, lw=2)
+    plt.xlabel("time steps")
+    plt.ylabel("gain")
+    plt.subplot(514)
+    plt.plot(x_list, bw_list, lw=2)
+    plt.xlabel("time steps")
+    plt.ylabel("bw")
+    plt.subplot(515)
+    plt.plot(x_list, last_state_list, lw=2)
+    plt.xlabel("time steps")
+    plt.ylabel("last_state visited")
+    plt.show()

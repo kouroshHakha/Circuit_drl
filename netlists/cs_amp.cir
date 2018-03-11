@@ -3,9 +3,9 @@ cs_amp test
 ***************************// Device Model //********************************
 .model  nch nmos level=1    vto=0.6     gamma=0.45  phi=0.9
 +nsub=9e14  ld=0.08e-6  uo=350  lambda=0.1  tox=9e-9    pb=0.9
-+cj=0.56e-3 cjsw=0.35e-11   mj=0.45 mjsw=0.2    cgdo=0.4e-9 js=1.0e-8
++cj=0 cjsw=0   mj=0.45 mjsw=0.2    cgdo=0 js=1.0e-8
 
-.param  vbias=0.7   rload=400   cload=100f   mul=12
+.param  vbias=0.8   rload=500   cload=100f   mul=12
 .param  L=0.18u E=0.54u W=0.8u  as="W*E"    ad="W*E"    ps="2*(E+W)"    pd="2*(E+W)"
 
 M1  vd  vg  0   0   nch  w=W    l=L  as=as   ad=ad   ps=ps   PD=pd  m=mul
@@ -18,7 +18,7 @@ vin vg  0   dc=vbias    ac=1
 
 .ac dec 20  1Meg  100G
 
-.control 
+.control
 run
 set wr_vecnames
 option numdgt=7

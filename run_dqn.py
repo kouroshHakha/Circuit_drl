@@ -15,10 +15,7 @@ def model(input_vec, num_actions, scope, reuse=False):
         out = input_vec
         with tf.variable_scope("action_value"):
             out = layers.fully_connected(out, num_outputs=64,         activation_fn=tf.nn.relu)
-            out = layers.fully_connected(out, num_outputs=512,         activation_fn=tf.nn.relu)
-            out = layers.fully_connected(out, num_outputs=128,         activation_fn=tf.nn.relu)
             out = layers.fully_connected(out, num_outputs=num_actions, activation_fn=None)
-
         return out
 
 def model_learn(env,
@@ -27,7 +24,7 @@ def model_learn(env,
     # This is just a rough estimate
     num_iterations = float(num_timesteps) / 1.0
 
-    lr_multiplier = 1.0
+    lr_multiplier = 3.0
     lr_schedule = PiecewiseSchedule([
                                          (0,                   1e-4 * lr_multiplier),
                                          (num_iterations / 10, 1e-4 * lr_multiplier),
@@ -46,8 +43,8 @@ def model_learn(env,
     exploration_schedule = PiecewiseSchedule(
         [
             (0, 1.0),
-            (num_iterations / 5, 0.1),
-            (num_iterations / 2, 0.01),
+            (num_iterations*3/4, 0.1),
+            (num_iterations*0.9, 0.01),
         ], outside_value=0.01
     )
 
@@ -61,11 +58,11 @@ def model_learn(env,
         replay_buffer_size=100000,
         batch_size=32,
         gamma=0.99,
-        learning_starts=500,
+        learning_starts=100,
         learning_freq=4,
         target_update_freq=100,
         grad_norm_clipping=10,
-        parallelization_rate=10
+        parallelization_rate=1
     )
 
 
@@ -94,7 +91,7 @@ def get_session():
     return session
 
 def main():
-    max_timesteps = 100000
+    max_timesteps= 10000
     # Run training
     file = './cs_amp.yaml'
     env = Env(file)
